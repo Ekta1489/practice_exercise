@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(dplyr)
+library(sqldf)
 ```
 
 ```{r}
@@ -45,4 +46,48 @@ sapply(practice_data, function(x) min(x))
 sapply(practice_data, function(x) max(x)) 
 ```
 
+```{r}
+practice_data %>%
+  count(
+   health_sc_6 = ifelse(health_score > 6, 1, 0)
+  )
+```
+```{r}
+sqldf("SELECT employee_id, COUNT(employee_id) AS missing FROM practice_data WHERE sex IS NULL GROUP BY employee_id")
+```
+```{r}
+practice_data %>%
+  select(
+    employee_id, sex
+  ) %>%
+  filter(
+  is.na(sex)
+  ) %>%
+  group_by(
+    employee_id
+  ) %>%
+  summarise(
+    missing = sum(is.na(sex))
+  )
+```
+
+```{r}
+sqldf("SELECT employee_id, COUNT(employee_id) FROM practice_data WHERE race IS NULL 
+      GROUP BY employee_id")
+```
+```{r}
+practice_data %>%
+  select(
+    employee_id, race
+  ) %>%
+  filter(
+     is.na(race)
+  ) %>%
+  group_by(
+    employee_id
+  ) %>%
+  summarise(
+    miss = sum(is.na(race))
+  )
+```
 
