@@ -2,7 +2,7 @@
 title: "practice_exercise"
 author: "Ekta Chaudhary"
 date: "28/06/2020"
-output: github_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}

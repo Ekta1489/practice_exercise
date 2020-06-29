@@ -31,6 +31,10 @@ library(sqldf)
     ## Loading required package: RSQLite
 
 ``` r
+library(ggthemes)
+```
+
+``` r
 practice_data = read_excel("./data/Practice_exercise.xlsx", sheet = "Data") %>%
   janitor::clean_names() %>%
   select(observation_number,quarter,employee_id, sex = sex_male_1, race, age, hospital_visit = hospital_visit_this_quarter_1_yes, salary, health_score) %>%
@@ -569,7 +573,7 @@ hosp = practice_data %>%
 ```
 
 ``` r
-s <- ggplot(hosp, aes(x = quarter, y = percent)) + geom_line() + geom_point()  +
+s <- ggplot(hosp, aes(x = quarter, y = percent, color = percent)) + theme_classic()+ geom_line() + geom_point()  +
    scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
   scale_y_continuous(name = "Percentage of employees visiting hospitals",
                            breaks = seq(0, 25, 5),
@@ -586,42 +590,92 @@ w = practice_data %>%
     sex = factor(sex)
   ) %>%
   select(
-     quarter, sex
+     employee_id, quarter, sex
   ) %>%
   group_by(
     quarter, sex
   ) %>%
-  summarise(
-    rcount = n()
-  )
+summarise(n = n()) %>%
+mutate(freq = n / sum(n)*100) 
+w
 ```
 
+    ## # A tibble: 24 x 4
+    ## # Groups:   quarter [12]
+    ##    quarter sex       n  freq
+    ##      <dbl> <fct> <int> <dbl>
+    ##  1       1 0       305  50.8
+    ##  2       1 1       295  49.2
+    ##  3       2 0       399  50.9
+    ##  4       2 1       385  49.1
+    ##  5       3 0       503  49.8
+    ##  6       3 1       507  50.2
+    ##  7       4 0       632  49.1
+    ##  8       4 1       655  50.9
+    ##  9       5 0       726  48.9
+    ## 10       5 1       759  51.1
+    ## # … with 14 more rows
+
 ``` r
-practice_data %>%
+t = w %>%
+  ggplot(aes(x = quarter, y = freq, fill = sex)) + geom_bar(stat = "identity", legend = c("Female", "Males")) + scale_fill_manual(values = c("dodgerblue4","pink")) + scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
+  scale_y_continuous(name = "Percentage",
+                           breaks = seq(0, 100, 10),
+                           limits = c(0, 100)) + labs(x = "Quarter", y = "Percentage" , title = "Distribution by Gender over time") + scale_fill_discrete(name = "Sex", labels = c("Females", "Males"))
+```
+
+    ## Warning: Ignoring unknown parameters: legend
+
+    ## Scale for 'fill' is already present. Adding another scale for 'fill',
+    ## which will replace the existing scale.
+
+``` r
+t
+```
+
+![](practice_exercise_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+
+``` r
+j = practice_data %>%
   drop_na() %>%
+  mutate(
+    race = factor(race)
+  ) %>%
   select(
      quarter, race
   ) %>%
   group_by(
     quarter, race
   ) %>%
-  summarise(
-    rcount = n()
-  )
+  summarise(n = n()) %>%
+mutate(freq = n / sum(n)*100) 
+j
 ```
 
-    ## # A tibble: 36 x 3
+    ## # A tibble: 36 x 4
     ## # Groups:   quarter [12]
-    ##    quarter  race rcount
-    ##      <dbl> <dbl>  <int>
-    ##  1       1     1    336
-    ##  2       1     2    167
-    ##  3       1     3     97
-    ##  4       2     1    432
-    ##  5       2     2    222
-    ##  6       2     3    130
-    ##  7       3     1    561
-    ##  8       3     2    293
-    ##  9       3     3    156
-    ## 10       4     1    718
+    ##    quarter race      n  freq
+    ##      <dbl> <fct> <int> <dbl>
+    ##  1       1 1       336  56. 
+    ##  2       1 2       167  27.8
+    ##  3       1 3        97  16.2
+    ##  4       2 1       432  55.1
+    ##  5       2 2       222  28.3
+    ##  6       2 3       130  16.6
+    ##  7       3 1       561  55.5
+    ##  8       3 2       293  29.0
+    ##  9       3 3       156  15.4
+    ## 10       4 1       718  55.8
     ## # … with 26 more rows
+
+``` r
+k = j %>%
+  ggplot(aes(x = quarter, y = freq, fill = race)) + geom_bar(stat = "identity") +
+  theme_classic() + scale_fill_manual(values = c("dodgerblue4","skyblue","pink")) + scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
+  scale_y_continuous(name = "Percentage",
+                           breaks = seq(0, 100, 10),
+                           limits = c(0, 100)) + labs(x = "Quarter", y = "Percentage" , title = "Distribution by Race over time") 
+k
+```
+
+![](practice_exercise_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
