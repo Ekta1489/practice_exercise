@@ -505,3 +505,8 @@ ggplot(
 
 #Checking the association between race and health score
 
+```{r}
+av <- aov(health_score ~ race, data = new_data)
+summary(av)
+```
+
