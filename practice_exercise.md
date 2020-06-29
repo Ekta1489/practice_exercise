@@ -7,14 +7,14 @@ Ekta Chaudhary
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ──────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 
     ## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
     ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
     ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
     ## ✔ readr   1.3.1     ✔ forcats 0.4.0
 
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ─────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
@@ -418,7 +418,7 @@ health_race = health_race %>%
 ``` r
 pe <- ggplot(health_race, aes(x = quarter, y = avg_score, group = race)) +
   geom_line(aes(color = race)) +
-  geom_point(aes(color = race)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Race") + scale_color_discrete(labels = c("Race 1", "Race 2", "Race 3"))
+  geom_point(aes(color = race)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Race") 
 pe
 ```
 
@@ -580,8 +580,11 @@ s
 ![](practice_exercise_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 ``` r
-practice_data %>%
+w = practice_data %>%
   drop_na() %>%
+  mutate(
+    sex = factor(sex)
+  ) %>%
   select(
      quarter, sex
   ) %>%
@@ -592,22 +595,6 @@ practice_data %>%
     rcount = n()
   )
 ```
-
-    ## # A tibble: 24 x 3
-    ## # Groups:   quarter [12]
-    ##    quarter   sex rcount
-    ##      <dbl> <dbl>  <int>
-    ##  1       1     0    305
-    ##  2       1     1    295
-    ##  3       2     0    399
-    ##  4       2     1    385
-    ##  5       3     0    503
-    ##  6       3     1    507
-    ##  7       4     0    632
-    ##  8       4     1    655
-    ##  9       5     0    726
-    ## 10       5     1    759
-    ## # … with 14 more rows
 
 ``` r
 practice_data %>%

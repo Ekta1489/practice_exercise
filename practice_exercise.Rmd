@@ -268,7 +268,7 @@ health_race = health_race %>%
 ```{r}
 pe <- ggplot(health_race, aes(x = quarter, y = avg_score, group = race)) +
   geom_line(aes(color = race)) +
-  geom_point(aes(color = race)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Race") + scale_color_discrete(labels = c("Race 1", "Race 2", "Race 3"))
+  geom_point(aes(color = race)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Race") 
 pe
 ```
 
@@ -369,8 +369,11 @@ s
 
 
 ```{r}
-practice_data %>%
+w = practice_data %>%
   drop_na() %>%
+  mutate(
+    sex = factor(sex)
+  ) %>%
   select(
      quarter, sex
   ) %>%
@@ -381,6 +384,7 @@ practice_data %>%
     rcount = n()
   )
 ```
+
 ```{r}
 practice_data %>%
   drop_na() %>%
