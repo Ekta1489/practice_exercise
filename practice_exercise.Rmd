@@ -38,6 +38,7 @@ practice_data %>%
   select(everything()) %>%  # replace to your needs
   summarise_all(funs(sum(is.na(.))))
 ```
+
 #finding the minimum and maximum values of each variable
 ```{r}
 sapply(practice_data, function(x) min(x)) 
@@ -271,4 +272,78 @@ pe <- ggplot(health_race, aes(x = quarter, y = avg_score, group = race)) +
 pe
 ```
 
+#trend in hospital visits over time
 
+
+
+
+
+#correcting the data
+
+```{r}
+new_data = practice_data %>%
+  drop_na() %>%
+  filter(
+    health_score <= 6, 
+    age >= 14, age <= 75
+  )
+```
+
+#checking the trend in mean health score over time
+```{r}
+hc1 = new_data %>%
+  select(
+    health_score, quarter
+  ) %>%
+  group_by(
+    quarter
+  ) %>%
+  summarise(
+    avg_score = mean(health_score)
+  )
+```
+```{r}
+sqldf("select quarter, age_cat, avg(health_score)as avg_score
+	from new_data
+	group by quarter, age_cat")
+```
+
+#Mean health score over time by age group
+```{r}
+new_data %>%
+  select(
+    health_score, quarter, age_cat
+  ) %>%
+  group_by(
+    quarter, age_cat
+  ) %>%
+  summarise(
+    avg_score = mean(health_score)
+  )
+```
+```{r}
+health_score = new_data %>%
+  mutate(
+    age_cat = factor(age_cat),
+quarter = factor(quarter))
+```
+
+```{r}
+health_score = health_score %>%
+  select(
+    health_score, quarter, age_cat
+  ) %>%
+  group_by(
+    quarter, age_cat
+  ) %>%
+  summarise(
+    avg_score = mean(health_score)
+  )
+```
+
+```{r}
+pn <- ggplot(health_score, aes(x = quarter, y = avg_score, group = age_cat)) +
+  geom_line(aes(color = age_cat)) +
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group")
+pn
+```
