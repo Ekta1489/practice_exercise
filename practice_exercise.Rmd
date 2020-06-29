@@ -15,6 +15,7 @@ library(readxl)
 library(dplyr)
 library(sqldf)
 library(ggthemes)
+library(catfun)
 ```
 
 ```{r}
@@ -169,11 +170,6 @@ hc = practice_data %>%
   )
 ```
 
-```{r}
-px <- ggplot(hc, aes(x = factor(quarter), y = avg_score)) +
-  geom_bar(stat = "identity", position = "dodge") + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time ")
-px
-```
 #Mean health score over time by age group
 ```{r}
 practice_data %>%
@@ -358,7 +354,7 @@ hosp = practice_data %>%
 ```
 
 ```{r}
-s <- ggplot(hosp, aes(x = quarter, y = percent, color = percent)) + theme_classic()+ geom_line() + geom_point()  +
+s <- ggplot(hosp, aes(x = quarter, y = percent, color = percent)) + theme_classic() + geom_line() + geom_point()  +
    scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
   scale_y_continuous(name = "Percentage of employees visiting hospitals",
                            breaks = seq(0, 25, 5),
@@ -419,6 +415,39 @@ k = j %>%
                            breaks = seq(0, 100, 10),
                            limits = c(0, 100)) + labs(x = "Quarter", y = "Percentage" , title = "Distribution by Race over time") 
 k
+```
+
+
+```{r}
+practice_data %>%
+  filter(
+    health_score <= 6
+  ) %>%
+  ggplot(
+    aes(x = health_score, y = salary)
+  ) + geom_point() + labs(
+    x = "Heath Score", y = "Salary", title = "Association between Salary and Health Score"
+  ) + scale_x_continuous(breaks = c(1:6) + scale_y_continuous(
+    breaks = c(1000:7000)
+  )
+  )
+  
+```
+
+```{r}
+practice_data %>%
+  drop_na() %>%
+  filter(
+    health_score <= 6
+  ) %>%
+  mutate(
+    sex = factor(sex)
+  ) %>%
+  ggplot(
+    aes(
+      x = sex, y = health_score
+    )
+  ) + geom_boxplot()
 ```
 
 
