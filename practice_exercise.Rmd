@@ -28,46 +28,31 @@ practice_data = read_excel("./data/Practice_exercise.xlsx", sheet = "Data") %>%
     )
   )
 ```
-
-```{r}
-practice_data %>%
-  select(
-    employee_id, age_cat, quarter
-  ) %>%
-  group_by(
-    quarter, employee_id
-  ) %>%
-  summarise(
-    total = sum(employee_id)
-  )
-```
-
+#Checking for missing data 
 ```{r}
 sapply(practice_data, function(x) sum(is.na(x)))
 ```
-
+#Checking for missing data 
 ```{r}
 practice_data %>%
   select(everything()) %>%  # replace to your needs
   summarise_all(funs(sum(is.na(.))))
 ```
-
+#finding the minimum and maximum values of each variable
 ```{r}
 sapply(practice_data, function(x) min(x)) 
 ```
 ```{r}
 sapply(practice_data, function(x) max(x)) 
 ```
-
+#checking the number of employees with health score outside the range of data
 ```{r}
 practice_data %>%
   count(
    health_sc_6 = ifelse(health_score > 6, 1, 0)
   )
 ```
-```{r}
-sqldf("SELECT employee_id, COUNT(employee_id) AS missing FROM practice_data WHERE sex IS NULL GROUP BY employee_id")
-```
+
 ```{r}
 practice_data %>%
   select(
@@ -85,10 +70,6 @@ practice_data %>%
 ```
 
 ```{r}
-sqldf("SELECT employee_id, COUNT(employee_id) FROM practice_data WHERE race IS NULL 
-      GROUP BY employee_id")
-```
-```{r}
 practice_data %>%
   select(
     employee_id, race
@@ -103,18 +84,35 @@ practice_data %>%
     miss = sum(is.na(race))
   )
 ```
+#Calculating the number of employees in each age group for each quarter
 ```{r}
-practice_data %>%
-  select(
-    health_score, quarter
-  ) %>%
-  group_by(
-    quarter
-  ) %>%
-  summarise(
-    avg_score = mean(health_score)
+emp_data = practice_data %>%
+  mutate(
+    quarter = factor(
+    quarter),
+    age_cat = factor(age_cat)
   )
 ```
+
+```{r}
+emp_data = emp_data %>%
+  select(
+    employee_id, quarter, age_cat
+  ) %>%
+  group_by(
+    quarter, age_cat
+  ) %>%
+  tally()
+```
+
+```{r}
+e <- ggplot(emp_data, aes(x = quarter, y = n, group = age_cat)) +
+  geom_line(aes(color = age_cat)) +
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Number of employees", title = "Number of employees in different age group for each quarter")
+e
+```
+
+#checking the trend in average salary over time 
 ```{r}
 practice_data %>%
   select(
@@ -128,6 +126,54 @@ practice_data %>%
   )
 ```
 ```{r}
+salary_data = practice_data %>%
+  mutate(
+    age_cat = factor(age_cat),
+quarter = factor(quarter))
+```
+#checking the trend in average salary over time by age group
+
+```{r}
+salary_data = salary_data %>%
+  select(
+    salary, quarter, age_cat
+  ) %>%
+  group_by(
+    quarter, age_cat
+  ) %>%
+  summarise(
+    avg_salary = mean(salary)
+  )
+```
+
+```{r}
+p <- ggplot(salary_data, aes(x = quarter, y = avg_salary, group = age_cat)) +
+  geom_line(aes(color = age_cat)) +
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Average Salary", title = "Trend in average Salary over time by age group")
+p
+```
+
+#checking the trend in mean health score over time
+```{r}
+hc = practice_data %>%
+  select(
+    health_score, quarter
+  ) %>%
+  group_by(
+    quarter
+  ) %>%
+  summarise(
+    avg_score = mean(health_score)
+  )
+```
+
+```{r}
+px <- ggplot(hc, aes(x = factor(quarter), y = avg_score)) +
+  geom_bar(stat = "identity", position = "dodge") + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time ")
+px
+```
+#Mean health score over time by age group
+```{r}
 practice_data %>%
   select(
     health_score, quarter, age_cat
@@ -141,32 +187,14 @@ practice_data %>%
 ```
 
 ```{r}
-salary = practice_data %>%
-  select(
-    salary, quarter, age_cat
-  ) %>%
-  group_by(
-    quarter, age_cat
-  ) %>%
-  summarise(
-    avg_salary = mean(salary)
-  )
-```
-```{r}
-salary = salary %>%
-  mutate(
-    age_cat = factor(age_cat))
-```
-
-
-```{r}
-p <- ggplot(salary, aes(x = quarter, y = avg_salary, group = age_cat)) +
-  geom_line(aes(color = age_cat)) +
-  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Average Salary", title = "Trend in average Salary over time by age group")
-p
-```
-```{r}
 health_sc = practice_data %>%
+  mutate(
+    age_cat = factor(age_cat),
+quarter = factor(quarter))
+```
+
+```{r}
+health_sc = health_sc %>%
   select(
     health_score, quarter, age_cat
   ) %>%
@@ -179,17 +207,68 @@ health_sc = practice_data %>%
 ```
 
 ```{r}
-health_sc = health_sc %>%
-  mutate(
-    age_cat = factor(age_cat))
-```
-
-
-```{r}
 p1 <- ggplot(health_sc, aes(x = quarter, y = avg_score, group = age_cat)) +
   geom_line(aes(color = age_cat)) +
   geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group")
 p1
+```
+#Mean health score over time by sex
+```{r}
+health_sex = practice_data %>%
+  mutate(
+    sex = factor(sex),
+quarter = factor(quarter))
+```
+
+
+```{r}
+health_sex = health_sex %>%
+  drop_na() %>%
+  select(
+    health_score, quarter, sex
+  ) %>%
+  group_by(
+    quarter, sex
+  ) %>%
+  summarise(
+    avg_score = mean(health_score)
+  )
+```
+
+```{r}
+pq <- ggplot(health_sex, aes(x = quarter, y = avg_score, group = sex)) +
+  geom_line(aes(color = sex)) +
+  geom_point(aes(color = sex)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Sex")
+pq
+```
+#Mean health score over time by race
+```{r}
+health_race = practice_data %>%
+  mutate(
+    race = factor(race),
+quarter = factor(quarter))
+```
+
+
+```{r}
+health_race = health_race %>%
+  drop_na() %>%
+  select(
+    health_score, quarter, race
+  ) %>%
+  group_by(
+    quarter, race
+  ) %>%
+  summarise(
+    avg_score = mean(health_score)
+  )
+```
+
+```{r}
+pe <- ggplot(health_race, aes(x = quarter, y = avg_score, group = race)) +
+  geom_line(aes(color = race)) +
+  geom_point(aes(color = race)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Race")
+pe
 ```
 
 
