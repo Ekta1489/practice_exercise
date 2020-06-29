@@ -14,6 +14,7 @@ library(tidyverse)
 library(readxl)
 library(dplyr)
 library(sqldf)
+library(ggthemes)
 ```
 
 ```{r}
@@ -357,14 +358,13 @@ hosp = practice_data %>%
 ```
 
 ```{r}
-s <- ggplot(hosp, aes(x = quarter, y = percent)) + geom_line() + geom_point()  +
+s <- ggplot(hosp, aes(x = quarter, y = percent, color = percent)) + theme_classic()+ geom_line() + geom_point()  +
    scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
   scale_y_continuous(name = "Percentage of employees visiting hospitals",
                            breaks = seq(0, 25, 5),
                            limits = c(0, 25)) + labs(x = "Quarter", y = "Percentage of employees visiting hospitals" , title = "Trend in Hospital visits over time") 
 s
 ```
-
 
 
 
@@ -375,29 +375,50 @@ w = practice_data %>%
     sex = factor(sex)
   ) %>%
   select(
-     quarter, sex
+     employee_id, quarter, sex
   ) %>%
   group_by(
     quarter, sex
   ) %>%
-  summarise(
-    rcount = n()
-  )
+summarise(n = n()) %>%
+mutate(freq = n / sum(n)*100) 
+w
 ```
 
 ```{r}
-practice_data %>%
+t = w %>%
+  ggplot(aes(x = quarter, y = freq, fill = sex)) + geom_bar(stat = "identity", legend = c("Female", "Males")) + scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
+  scale_y_continuous(name = "Percentage",
+                           breaks = seq(0, 100, 10),
+                           limits = c(0, 100)) + labs(x = "Quarter", y = "Percentage" , title = "Distribution by Gender over time") + scale_fill_discrete(name = "Sex", labels = c("Females", "Males")) 
+t
+```
+
+```{r}
+j = practice_data %>%
   drop_na() %>%
+  mutate(
+    race = factor(race)
+  ) %>%
   select(
      quarter, race
   ) %>%
   group_by(
     quarter, race
   ) %>%
-  summarise(
-    rcount = n()
-  )
+  summarise(n = n()) %>%
+mutate(freq = n / sum(n)*100) 
+j
 ```
 
+```{r}
+k = j %>%
+  ggplot(aes(x = quarter, y = freq, fill = race)) + geom_bar(stat = "identity") +
+  theme_classic() + scale_fill_manual(values = c("dodgerblue4","skyblue","pink")) + scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
+  scale_y_continuous(name = "Percentage",
+                           breaks = seq(0, 100, 10),
+                           limits = c(0, 100)) + labs(x = "Quarter", y = "Percentage" , title = "Distribution by Race over time") 
+k
+```
 
 
