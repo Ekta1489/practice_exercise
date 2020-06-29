@@ -26,6 +26,8 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
+#Reading the dataset
+
 ```{r}
 practice_data = read_excel("./data/Practice_exercise.xlsx", sheet = "Data") %>%
   janitor::clean_names() %>%
@@ -38,31 +40,36 @@ practice_data = read_excel("./data/Practice_exercise.xlsx", sheet = "Data") %>%
     )
   )
 ```
+
 #Checking for missing data 
+
 ```{r}
 sapply(practice_data, function(x) sum(is.na(x)))
 ```
-#Checking for missing data 
 ```{r}
 practice_data %>%
-  select(everything()) %>%  # replace to your needs
+  select(everything()) %>%  
   summarise_all(funs(sum(is.na(.))))
 ```
 
-#finding the minimum and maximum values of each variable
+#Finding the minimum and maximum values of each variable
+
 ```{r}
 sapply(practice_data, function(x) min(x)) 
 ```
 ```{r}
 sapply(practice_data, function(x) max(x)) 
 ```
-#checking the number of employees with health score outside the range of data
+
+#Checking the number of employees with health score outside the range of data
+
 ```{r}
 practice_data %>%
   count(
    health_sc_6 = ifelse(health_score > 6, 1, 0)
   )
 ```
+#Calculating the number of quarters for which the employees have missing data on sex
 
 ```{r}
 practice_data %>%
@@ -80,6 +87,8 @@ practice_data %>%
   )
 ```
 
+#Calculating the number of quarters for which the employees have missing data on race
+
 ```{r}
 practice_data %>%
   select(
@@ -95,7 +104,9 @@ practice_data %>%
     miss = sum(is.na(race))
   )
 ```
+
 #Calculating the number of employees in each age group for each quarter
+
 ```{r}
 emp_data = practice_data %>%
   mutate(
@@ -123,7 +134,8 @@ e <- ggplot(emp_data, aes(x = quarter, y = n, group = age_cat)) +
 e
 ```
 
-#checking the trend in average salary over time 
+#Checking the trend in average salary over time 
+
 ```{r}
 practice_data %>%
   select(
@@ -136,13 +148,15 @@ practice_data %>%
     avg_salary = mean(salary)
   )
 ```
+
 ```{r}
 salary_data = practice_data %>%
   mutate(
     age_cat = factor(age_cat),
 quarter = factor(quarter))
 ```
-#checking the trend in average salary over time by age group
+
+#Checking the trend in average salary over time by age group
 
 ```{r}
 salary_data = salary_data %>%
@@ -164,7 +178,8 @@ p <- ggplot(salary_data, aes(x = quarter, y = avg_salary, group = age_cat)) +
 p
 ```
 
-#checking the trend in mean health score over time
+#Checking the trend in mean health score over time
+
 ```{r}
 hc = practice_data %>%
   select(
@@ -179,6 +194,7 @@ hc = practice_data %>%
 ```
 
 #Mean health score over time by age group
+
 ```{r}
 practice_data %>%
   select(
@@ -215,17 +231,18 @@ health_sc = health_sc %>%
 ```{r}
 p1 <- ggplot(health_sc, aes(x = quarter, y = avg_score, group = age_cat)) +
   geom_line(aes(color = age_cat)) +
-  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group") +scale_color_discrete(labels = c("<30 years", "31-45 years", ">45 years"))
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group") + scale_color_discrete(labels = c("<30 years", "31-45 years", ">45 years"))
 p1
 ```
+
 #Mean health score over time by sex
+
 ```{r}
 health_sex = practice_data %>%
   mutate(
     sex = factor(sex),
 quarter = factor(quarter))
 ```
-
 
 ```{r}
 health_sex = health_sex %>%
@@ -247,14 +264,15 @@ pq <- ggplot(health_sex, aes(x = quarter, y = avg_score, group = sex)) +
   geom_point(aes(color = sex)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Sex") + scale_color_discrete(labels = c("Females", "Males"))
 pq
 ```
+
 #Mean health score over time by race
+
 ```{r}
 health_race = practice_data %>%
   mutate(
     race = factor(race),
 quarter = factor(quarter))
 ```
-
 
 ```{r}
 health_race = health_race %>%
@@ -277,7 +295,7 @@ pe <- ggplot(health_race, aes(x = quarter, y = avg_score, group = race)) +
 pe
 ```
 
-#correcting the data
+#Correcting the data quality issues
 
 ```{r}
 new_data = practice_data %>%
@@ -288,7 +306,8 @@ new_data = practice_data %>%
   )
 ```
 
-#checking the trend in mean health score over time
+#Checking the trend in mean health score over time in the corrected data
+
 ```{r}
 hc1 = new_data %>%
   select(
@@ -300,11 +319,6 @@ hc1 = new_data %>%
   summarise(
     avg_score = mean(health_score)
   )
-```
-```{r}
-sqldf("select quarter, age_cat, avg(health_score)as avg_score
-	from new_data
-	group by quarter, age_cat")
 ```
 
 #Mean health score over time by age group
@@ -347,9 +361,10 @@ pn <- ggplot(health_score, aes(x = quarter, y = avg_score, group = age_cat)) +
 pn
 ```
 
+#Calculating the trend in hospital visits over time
+
 ```{r}
 hosp = practice_data %>%
-
   select(
     employee_id, hospital_visit, quarter
   ) %>%
@@ -370,7 +385,7 @@ s <- ggplot(hosp, aes(x = quarter, y = percent, color = percent)) + theme_classi
 s
 ```
 
-
+#Calculating the distribution by gender over time
 
 ```{r}
 w = practice_data %>%
@@ -397,6 +412,8 @@ t = w %>%
                            limits = c(0, 100)) + labs(x = "Quarter", y = "Percentage" , title = "Distribution by Gender over time") + scale_fill_discrete(name = "Sex", labels = c("Females", "Males")) 
 t
 ```
+
+#Calculating the distribution by race over time
 
 ```{r}
 j = practice_data %>%
@@ -425,6 +442,7 @@ k = j %>%
 k
 ```
 
+#Scatterplot between salary and health score
 
 ```{r}
 practice_data %>%
@@ -438,6 +456,8 @@ practice_data %>%
   ) + scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) 
                            
 ```
+
+#Box-plot showing the Mean health score for both genders
 
 ```{r}
 practice_data %>%
@@ -455,11 +475,33 @@ practice_data %>%
   ) + geom_boxplot()
 ```
 
+#Checking the association between sex and health score using two sample t-test
+
 ```{r}
-t.test(health_score ~ factor(sex), data = new_data)
+t.test(health_score ~ sex, data = new_data)
 ```
+
+#Checking the association between hospital visit and health score using two sample t-test
+
 ```{r}
 t.test(health_score ~ hospital_visit, data = new_data)
 ```
 
+#Scatterplot showing the association between age and health score
+
+```{r}
+new_data %>%
+  filter(
+    age <= 60
+  ) %>%
+ggplot(
+  aes(
+    x = age, y = health_score
+  )
+) + geom_point(
+  aes(color = "pink")
+)
+```
+
+#Checking the association between race and health score
 
