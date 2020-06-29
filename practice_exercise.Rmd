@@ -109,7 +109,7 @@ emp_data = emp_data %>%
 ```{r}
 e <- ggplot(emp_data, aes(x = quarter, y = n, group = age_cat)) +
   geom_line(aes(color = age_cat)) +
-  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Number of employees", title = "Number of employees in different age group for each quarter")
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Number of employees", title = "Number of employees in different age group for each quarter") + scale_color_discrete(labels = c("<30 years", "31-45 years", ">45 years"))
 e
 ```
 
@@ -150,7 +150,7 @@ salary_data = salary_data %>%
 ```{r}
 p <- ggplot(salary_data, aes(x = quarter, y = avg_salary, group = age_cat)) +
   geom_line(aes(color = age_cat)) +
-  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Average Salary", title = "Trend in average Salary over time by age group")
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Average Salary", title = "Trend in average Salary over time by age group") + scale_color_discrete(labels = c("<30 years", "31-45 years", ">45 years"))
 p
 ```
 
@@ -210,7 +210,7 @@ health_sc = health_sc %>%
 ```{r}
 p1 <- ggplot(health_sc, aes(x = quarter, y = avg_score, group = age_cat)) +
   geom_line(aes(color = age_cat)) +
-  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group")
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group") +scale_color_discrete(labels = c("<30 years", "31-45 years", ">45 years"))
 p1
 ```
 #Mean health score over time by sex
@@ -239,7 +239,7 @@ health_sex = health_sex %>%
 ```{r}
 pq <- ggplot(health_sex, aes(x = quarter, y = avg_score, group = sex)) +
   geom_line(aes(color = sex)) +
-  geom_point(aes(color = sex)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Sex")
+  geom_point(aes(color = sex)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Sex") + scale_color_discrete(labels = c("Females", "Males"))
 pq
 ```
 #Mean health score over time by race
@@ -268,15 +268,9 @@ health_race = health_race %>%
 ```{r}
 pe <- ggplot(health_race, aes(x = quarter, y = avg_score, group = race)) +
   geom_line(aes(color = race)) +
-  geom_point(aes(color = race)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Race")
+  geom_point(aes(color = race)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by Race") + scale_color_discrete(labels = c("Race 1", "Race 2", "Race 3"))
 pe
 ```
-
-#trend in hospital visits over time
-
-
-
-
 
 #correcting the data
 
@@ -344,6 +338,62 @@ health_score = health_score %>%
 ```{r}
 pn <- ggplot(health_score, aes(x = quarter, y = avg_score, group = age_cat)) +
   geom_line(aes(color = age_cat)) +
-  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group")
+  geom_point(aes(color = age_cat)) + labs(x = "Quarter", y = "Mean Health Score", title = "Trend in Mean Health Score over time by age group") + scale_color_discrete(labels = c("<30 years", "31-45 years", ">45 years"))
 pn
 ```
+
+```{r}
+hosp = practice_data %>%
+
+  select(
+    employee_id, hospital_visit, quarter
+  ) %>%
+  group_by(
+    quarter
+  ) %>%
+  summarise(
+    percent = (sum(hospital_visit)/n())*100
+  )
+```
+
+```{r}
+s <- ggplot(hosp, aes(x = quarter, y = percent)) + geom_line() + geom_point()  +
+   scale_x_discrete(name = "Quarter", limits = c("1","2","3","4","5","6","7","8","9","10","11","12")) + 
+  scale_y_continuous(name = "Percentage of employees visiting hospitals",
+                           breaks = seq(0, 25, 5),
+                           limits = c(0, 25)) + labs(x = "Quarter", y = "Percentage of employees visiting hospitals" , title = "Trend in Hospital visits over time") 
+s
+```
+
+
+
+
+```{r}
+practice_data %>%
+  drop_na() %>%
+  select(
+     quarter, sex
+  ) %>%
+  group_by(
+    quarter, sex
+  ) %>%
+  summarise(
+    rcount = n()
+  )
+```
+```{r}
+practice_data %>%
+  drop_na() %>%
+  select(
+     quarter, race
+  ) %>%
+  group_by(
+    quarter, race
+  ) %>%
+  summarise(
+    rcount = n()
+  )
+```
+
+
+
