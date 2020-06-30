@@ -102,7 +102,7 @@ practice_data %>%
   ) %>%
   summarise(
     miss = sum(is.na(race))
-  )
+  ) 
 ```
 
 #Calculating the number of employees in each age group for each quarter
@@ -168,7 +168,10 @@ salary_data = salary_data %>%
   ) %>%
   summarise(
     avg_salary = mean(salary)
-  )
+  ) #%>%
+  #pivot_wider(
+    #names_from = age_cat, values_from = avg_salary
+  #)
 ```
 
 ```{r}
