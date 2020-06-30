@@ -10,6 +10,9 @@ library(tidyverse)
 library(viridis)
 library(sqldf)
 library(readxl)
+library(rvest)
+library(plotly)
+
 knitr::opts_chunk$set(
 	echo = TRUE,
 	warning = FALSE,
@@ -582,7 +585,7 @@ practice_data %>%
   )
 ```
 
-Extra:
+Notes:
 Window functions
 The previous example used mean() to compute the mean within each group, which was then subtracted from the observed max tempurature. mean() takes n inputs and produces a single output.
 
@@ -605,5 +608,57 @@ practice_data %>%
     filter(
    min_rank(salary) < 2  
     ) 
+```
+
+Notes:
+
+Strings and Factors: The most frequent operation involving strings is to search for an exact match. You can use str_detect to find cases where the match exists (often useful in conjunction with filter), and you can use str_replace to replace an instance of a match with something else (often useful in conjunction with mutate)
+
+str_detect(string_vec, "^i think") - Starts with i think
+str_detect(string_vec, "i think$") - ends with i think
+str_detect(string_vec,"[Bb]ush")
+str_detect(string_vec, "^[0-9][a-zA-Z]")
+str_detect(string_vec, "7.11") The character . matches any character.
+Some characters are “special”. These include [ and ], ( and ), and .. If you want to search for these, you have to indicate they’re special using \. Unfortunately, \ is also special, so things get weird.
+str_detect(string_vec, "\\[") - search for an actual character i.e, the open bracket [
+
+*imp: select(-contains"")
+
+example for separate and str_replace:
+
+data_marj = 
+  table_marj %>%
+  select(-contains("P Value")) %>% #
+  pivot_longer(
+    -State,
+    names_to = "age_year", 
+    values_to = "percent") %>%
+    
+  separate(age_year, into = c("age", "year"), sep = "\\(") %>% #seperating the age_year into age and year, seperated by an open parenthesis. sep = "\\(" means separate from where there is an (. We have to give \\ since ( is a special character.
+  
+  mutate(
+    year = str_replace(year, "\\)", ""), #After the above step, year had a ) and we would want to remove that. We can do that by replacing that with a blank. 
+    str_replace(year, "\\)", "") is replacing ) with a black. Again we used \\ since ) is a spl character.
+    percent = str_replace(percent, "[a-c]$", ""), there is a character a,b, or c at the end of the percent values which we would want to remove. To remove, use str_replace, and [a-c]$ shows the presence of a-c at the end of the percent string and we want to replace that with a blank.
+    percent = as.numeric(percent)) %>%
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+  
+#Interactivity
+
+```{r}
+practice_data %>%
+  select(quarter, race, health_score) %>%
+  mutate(
+    race = factor(race)
+  ) %>%
+  group_by(
+    race, quarter
+  ) %>%
+  summarise(
+    mean_score = mean(health_score)
+  ) %>%
+  plot_ly(
+   x = ~quarter, y = ~ mean_score, color = ~race, type = "bar"
+  )
 ```
 
