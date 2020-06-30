@@ -2,7 +2,7 @@
 title: "practice_exercise"
 author: "Ekta Chaudhary"
 date: "28/06/2020"
-output: pdf_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -647,6 +647,7 @@ data_marj =
 
 ```{r}
 practice_data %>%
+  drop_na() %>%
   select(quarter, race, health_score) %>%
   mutate(
     race = factor(race)
