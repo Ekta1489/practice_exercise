@@ -231,6 +231,8 @@ health_sc = health_sc %>%
   )
 ```
 
+In group by and summarise, the number of rows is the number of groups, and the columns are the values you have summarised.
+
 ```{r}
 p1 <- ggplot(health_sc, aes(x = quarter, y = avg_score, group = age_cat)) +
   geom_line(aes(color = age_cat)) +
@@ -566,5 +568,42 @@ practice_data %>%
     )
 ```
 
+Notes: 
+Grouped mutate
+Summarizing collapses groups into single data points. In contrast, using mutate() in conjuntion with group_by() will retain all original data points and add new variables computed within groups.
 
+```{r}
+practice_data %>%
+  group_by(
+    quarter
+  ) %>%
+  mutate(
+    hs = round(health_score, digits = 0)
+  )
+```
+
+Extra:
+Window functions
+The previous example used mean() to compute the mean within each group, which was then subtracted from the observed max tempurature. mean() takes n inputs and produces a single output.
+
+Window functions, in contrast, take n inputs and return n outputs, and the outputs depend on all the inputs. There are several categories of window functions; you’re most likely to need ranking functions and offsets, which we illustrate below.
+
+
+```{r}
+practice_data %>%
+  group_by(quarter, sex) %>%
+  mutate(
+    salary_rank = min_rank(salary)
+  )
+```
+
+This sort of ranking is useful when filtering data based on rank
+
+```{r}
+practice_data %>%
+  group_by(quarter, sex) %>%
+    filter(
+   min_rank(salary) < 2  
+    ) 
+```
 
