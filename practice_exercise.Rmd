@@ -309,7 +309,7 @@ new_data = practice_data %>%
 #Checking the trend in mean health score over time in the corrected data
 
 ```{r}
-hc1 = new_data %>%
+new_data %>%
   select(
     health_score, quarter
   ) %>%
@@ -318,7 +318,8 @@ hc1 = new_data %>%
   ) %>%
   summarise(
     avg_score = mean(health_score)
-  )
+  ) %>%
+  knitr::kable()
 ```
 
 #Mean health score over time by age group
@@ -332,7 +333,8 @@ new_data %>%
   ) %>%
   summarise(
     avg_score = mean(health_score)
-  )
+  ) %>%
+knitr::kable()
 ```
 ```{r}
 health_score = new_data %>%
@@ -509,4 +511,57 @@ ggplot(
 av <- aov(health_score ~ race, data = new_data)
 summary(av)
 ```
+
+#Creating 2*2 tables
+
+```{r}
+ practice_data %>%
+  filter(
+    age_cat != 3
+  ) %>%
+  mutate(
+    sal_cat = case_when(
+      salary < 40000 ~ "First",
+      salary > 40000 ~ "Second"
+    )
+  ) %>%
+  janitor::tabyl(age_cat, sal_cat)
+```
+
+```{r}
+ practice_data %>%
+  filter(
+    age_cat != 3
+  ) %>%
+  mutate(
+    sal_cat = case_when(
+      salary < 40000 ~ "First",
+      salary > 40000 ~ "Second"
+    )
+  ) %>%
+  group_by(age_cat,sal_cat) %>%
+  summarise(
+    n = n()
+  ) %>%
+  pivot_wider(
+    names_from = sal_cat, values_from = n
+  )
+```
+#General summaries 
+
+```{r}
+practice_data %>%
+  group_by(
+    quarter
+  ) %>%
+  summarise(
+    n = n(),
+    mean_age = mean(age),
+    median_age = median(age),
+    mean_salary = mean(salary),
+    median_salary = median(salary)
+    )
+```
+
+
 
