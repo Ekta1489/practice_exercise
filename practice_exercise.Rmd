@@ -2,7 +2,7 @@
 title: "practice_exercise"
 author: "Ekta Chaudhary"
 date: "28/06/2020"
-output: github_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -198,7 +198,7 @@ hc = practice_data %>%
     avg_score = mean(health_score)
   )
 ```
-
+  
 #Mean health score over time by age group
 
 ```{r}
@@ -344,6 +344,7 @@ new_data %>%
   ) %>%
 knitr::kable()
 ```
+
 ```{r}
 health_score = new_data %>%
   mutate(
@@ -645,7 +646,6 @@ data_marj =
   
 #Interactivity
 
-```{r}
 practice_data %>%
   drop_na() %>%
   select(quarter, race, health_score) %>%
@@ -661,5 +661,61 @@ practice_data %>%
   plot_ly(
    x = ~quarter, y = ~ mean_score, color = ~race, type = "bar"
   )
+
+
+```{r}
+age_function = function(x){
+  tibble(
+    mean = mean(x),
+    minimum = min(x),
+    maximum = max(x)
+  )
+}
+```
+
+```{r}
+a = practice_data %>%
+  select(
+    age, salary, health_score
+  )
+```
+
+```{r}
+age_function(x = a$age)
+age_function(x = a$health_score)
+age_function(x = a$salary)
+
+```
+
+```{r}
+practice_data1 = 
+  practice_data %>%
+  select(employee_id, age, hospital_visit, salary, health_score)
+```
+
+```{r}
+nested_data = nest(practice_data1, data = age:health_score)
+```
+
+```{r}
+nested_data$data[[1]]
+```
+```{r}
+nested_data %>%
+  unnest()
+```
+
+```{r}
+lm_func = function(df) {
+  lm(health_score ~ age, data = df)
+}
+```
+
+```{r}
+lm_func(df = nested_data$data[[1]])
+```
+
+```{r}
+#map(nested_data$data, lm_func)
 ```
 
