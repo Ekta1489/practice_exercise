@@ -13,6 +13,7 @@ library(readxl)
 library(rvest)
 library(plotly)
 library(broom)
+library(modelr)
 set.seed(1)
 
 knitr::opts_chunk$set(
@@ -790,4 +791,14 @@ fit %>%
 
 ```
 
+Diagnostics for linear models:
+
+```{r}
+modelr::add_residuals(practice_data, fit) 
+```
+
+
+```{r}
+modelr::add_predictions(practice_data, fit) 
+```
 
