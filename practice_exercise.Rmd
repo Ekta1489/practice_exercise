@@ -824,3 +824,48 @@ fit_logistic %>%
   knitr::kable(digits = 2)
 ```
 
+```{r}
+train_data = sample_frac(practice_data, size = 0.8 )
+test_data = anti_join(practice_data, train_data, by = "observation_number")
+```
+
+```{r}
+lm1 = lm(health_score ~ salary, data = train_data) 
+smooth_mod = mgcv::gam(health_score ~ s(salary), data = train_data)
+wiggly_mod = mgcv::gam(health_score ~ s(salary, k = 30), sp = 10e-6, data = train_data)
+```
+
+```{r}
+train_data %>%
+  add_predictions(lm1) %>%
+  ggplot(
+    aes(x = salary, y = health_score)
+  ) + geom_point() + geom_point(aes(y = pred), color = "red")
+```
+
+
+
+
+```{r}
+rmse(lm1, test_data)
+```
+
+Using modelr package for cross validation. 
+
+```{r}
+cv_df = crossv_mc(practice_data, 100)
+```
+
+```{r}
+cv_df %>%
+  pull(train) %>%
+  .[[1]] %>%
+  as.tibble()
+```
+
+```{r}
+cv_df %>%
+  pull(test) %>%
+  .[[1]] %>%
+  as.tibble()
+```
