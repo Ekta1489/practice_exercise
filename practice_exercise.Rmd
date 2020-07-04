@@ -869,3 +869,23 @@ cv_df %>%
   .[[1]] %>%
   as.tibble()
 ```
+
+```{r}
+cv_df = cv_df %>%
+  mutate(
+   train =  map(train, as.tibble),
+   test = map(test, as.tibble)
+  )
+  
+```
+
+Fitting the linear model to all of these datasets...
+
+```{r}
+cv_df %>%
+  mutate(
+    linear_mod = map(.x = train, ~lm(health_score ~ salary, data = .x)), 
+    rmse = map2_dbl(.x = linear_mod, .y = test, ~ rmse(.x,.y))
+  )
+```
+
