@@ -802,3 +802,25 @@ modelr::add_residuals(practice_data, fit)
 modelr::add_predictions(practice_data, fit) 
 ```
 
+Nesting
+```{r}
+fit_interaction = lm(health_score ~ sex + age + salary + race + age*sex + hospital_visit, data = practice_data)
+fit_interaction %>%
+  broom::tidy()
+```
+
+Logistic regression:
+
+```{r}
+fit_logistic = glm(hospital_visit ~ age + salary, data = practice_data)
+fit_logistic %>%
+  broom::tidy() %>%
+  mutate(
+    OR = exp(estimate)
+  ) %>%
+  select(
+    term, estimate, p.value, OR
+  ) %>%
+  knitr::kable(digits = 2)
+```
+
