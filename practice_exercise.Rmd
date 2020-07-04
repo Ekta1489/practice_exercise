@@ -12,6 +12,7 @@ library(sqldf)
 library(readxl)
 library(rvest)
 library(plotly)
+set.seed(1)
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -688,34 +689,87 @@ age_function(x = a$salary)
 ```
 
 ```{r}
-practice_data1 = 
-  practice_data %>%
-  select(employee_id, age, hospital_visit, salary, health_score)
+practice_data2 = practice_data %>%
+  filter(
+    employee_id %in% 1:3
+  ) %>%
+  select(
+    employee_id, quarter, age, hospital_visit, salary, health_score
+  )
+```
+
+#Nesting
+
+```{r}
+employee_nest = practice_data2 %>%
+  nest(
+    data = quarter:health_score
+  ) #nesting the age,hosputal visit, salary and health score within the employee id and quarter. dATA is a list of data frames.
+```
+
+Is the list column really a list? Let's check?
+
+```{r}
+employee_nest %>%
+  pull(data)
+``` 
+
+```{r}
+employee_nest$data[[1]]
+```
+
+Unnesting 
+
+```{r}
+employee_nest %>%
+  unnest() #back to the original data
+```
+
+Trying useful things with the list column: 
+
+```{r}
+employee_1 = employee_nest$data[[1]]
+lm(health_score ~ age, data = employee_1)
 ```
 
 ```{r}
-nested_data = nest(practice_data1, data = age:health_score)
+employee_2 = employee_nest$data[[2]]
+lm(health_score ~ age, data = employee_2)
 ```
+Instead of repeating it again and again for all the three employees, we could:
 
 ```{r}
-nested_data$data[[1]]
+lm(health_score ~ age, data = employee_nest$data[[1]])
+lm(health_score ~ age, data = employee_nest$data[[2]])
 ```
-```{r}
-nested_data %>%
-  unnest()
-```
+We could use a loop:
 
 ```{r}
-lm_func = function(df) {
-  lm(health_score ~ age, data = df)
+output = vector("list", length = 3)
+
+for (i in 1:3) {
+  output[[i]] = lm(health_score ~ age, data = employee_nest$data[[i]])
 }
 ```
 
+
 ```{r}
-lm_func(df = nested_data$data[[1]])
+lm_fun = function(x) {
+  lm(health_score ~ age, data = x)
+} #written a function for the linear model
 ```
 
 ```{r}
-#map(nested_data$data, lm_func)
+output = vector("list", length = 3)
+
+for (i in 1:3) {
+  output[[i]] = lm_fun(x = employee_nest$data[[i]])
+}
+```
+
+Use map:
+
+```{r}
+output = map(employee_nest$data, lm_fun)
 ```
 
