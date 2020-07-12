@@ -1,6 +1,8 @@
 ---
-title: "Costello_data_excerciee"
-output: html_document
+title: "Practice 2"
+author: "Ekta Chaudhary"
+date: "28/06/2020"
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -103,7 +105,7 @@ dat_csv %>%
     aes(
       comorbidities
     )
-  ) + geom_bar(width = 0.5, fill = "lightblue", position = "dodge") 
+  ) + geom_bar(width = 0.4, fill = "steelblue", position = "dodge") + labs(x = "Comorbidities", y = "Number of patients" , title = "Number of patients with comorbidities") 
 ```
 
 #Number of prior treatment for cirrhosis
@@ -115,7 +117,7 @@ dat_csv %>%
     aes(
       number_of_prior_treatments_for_cirrhosis
     )
-  ) + geom_bar(width = 0.5, fill = "pink", position = "dodge") 
+  ) + geom_bar(width = 0.4, fill = "darkgreen", position = "dodge") + labs(x = "Prior treatments of cirrhosis", y = "Number of patients" , title = "Number of patients with prior treatments of cirrhosis") 
 ```
 
 # Associations:
@@ -149,7 +151,7 @@ dplyr::mutate(freq = n / sum(n)*100)
 
 ```{r}
 age_dis %>%
-  ggplot(aes(x = age_cat, y = freq, fill = hcc_at_5_years)) + geom_bar(stat = "identity") + scale_x_discrete(name = "Age Category", limits = c("1","2","3")) + 
+  ggplot(aes(x = age_cat, y = freq, fill = hcc_at_5_years)) + geom_bar(stat = "identity", width = 0.5) + scale_x_discrete(name = "Age Category", limits = c("1","2","3")) + 
   scale_y_continuous(name = "Percentage",
                            breaks = seq(0, 100, 10),
                            limits = c(0, 100)) + labs(x = "Age Category", y = "Percentage" , title = "Association between HCC and Age") + scale_fill_discrete(name = "HCC at 5 years", labels = c("NO", "YES")) 
@@ -202,10 +204,9 @@ hcc_alc = new_data %>%
   )
 ```
 ```{r}
-ggplot(hcc_alc, aes(x = age_cat, y = alc)) +
-  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat="identity", width=.5) +
-      geom_text(aes(label = alc, group=hcc_at_5_years), position=position_dodge(width=0.5), vjust = -0.5) +
-      theme_bw(base_size = 18) 
+ggplot(hcc_alc, aes(x = factor(age_cat), y = alc)) +
+  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat = "identity", width = .5) +
+      geom_text(aes(label = alc, group = hcc_at_5_years), position = position_dodge(width = 0.5), vjust = -0.5) + labs(x = "Age Category", y = "Average alcohol intake", title = "Association between HCC and alcohol intake") 
 ```
 
 #Hcc and comorbidities
@@ -223,9 +224,8 @@ dat_csv %>%
     c = n()
   ) %>%
   ggplot(aes(x = comorbidities, y = c)) +
-  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat="identity", width=.5) +
-      geom_text(aes(label = c, group=hcc_at_5_years), position=position_dodge(width=0.5), vjust = -0.5) +
-      theme_bw(base_size = 18) 
+  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat = "identity", width = .5) +
+      geom_text(aes(label = c, group = hcc_at_5_years), position = position_dodge(width = 0.5), vjust = -0.5) +  labs(x = "Comorbidities", y = "Number of patients", title = "Association between HCC and Comorbidities") + theme(axis.text.x = element_text(angle = 90, vjust = 0.9, hjust = 0.9))
 ```
 
 #HCC and number of prior treatments for cirrhosis
@@ -243,9 +243,9 @@ dat_csv %>%
     c = n()
   ) %>%
   ggplot(aes(x = number_of_prior_treatments_for_cirrhosis, y = c)) +
-  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat="identity", width=.5) +
-      geom_text(aes(label = c, group=hcc_at_5_years), position=position_dodge(width=0.5), vjust = -0.5) +
-      theme_bw(base_size = 18) 
+  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat = "identity", width = .5) +
+      geom_text(aes(label = c, group = hcc_at_5_years), position = position_dodge(width = 0.5), vjust = -0.5) +
+      labs(x = "Number of prior treatments for Cirrhosis", y = "Number of patients", title = "Association between HCC and number of prior treatments for Cirrhosis") 
 ```
 
 
