@@ -889,3 +889,15 @@ cv_df %>%
   )
 ```
 
+```{r}
+cv_df = crossv_mc(practice_data, 100)
+```
+
+```{r}
+cv_df %>%
+mutate(
+  linear_mod = map(.x = train, ~lm(health_score ~ salary, data = .x)),
+  rmse = map2_dbl(.x = linear_mod, .y = test, ~rmse(.x,.y))
+)
+```
+
