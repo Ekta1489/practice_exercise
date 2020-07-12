@@ -1,0 +1,251 @@
+---
+title: "Costello_data_excerciee"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(viridis)
+library(sqldf)
+library(readxl)
+library(rvest)
+library(plotly)
+library(broom)
+library(modelr)
+library(knitr)
+library(readr)
+library(plyr)
+set.seed(1)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+```{r}
+path <- '/Users/ektachaudhary/Documents/practice_ex_2/Data/'
+files = list.files(path = path, pattern = "*.csv", full.names = TRUE)
+```
+
+#Reading the datasets
+```{r}
+dat_csv = ldply(files, read_csv) %>%
+  janitor::clean_names()
+dat_csv 
+```
+
+#Checking for missing values
+
+```{r}
+sapply(dat_csv, function(x) sum(is.na(x)))
+```
+
+#Exploring the minimimum and maximum value for each variable
+
+```{r}
+data_new = dat_csv %>%
+  drop_na()
+sapply(data_new, function(x) min(x)) 
+sapply(data_new, function(x) max(x))
+```
+
+#Checking the mean values for each variable
+
+```{r}
+dat_csv %>%
+  drop_na() %>%
+  summarise(
+    Avg_age = mean(age),
+    Avg_weight = mean(weight),
+    Avg_Alcohol_intake = mean(alcohol),
+    Avg_Height = mean(height)
+  ) %>%
+knitr::kable()
+```
+
+#Chceking the age distribution:
+
+```{r}
+dat_csv %>% 
+  ggplot(aes(x = age)) + geom_histogram(color = "black", fill = "lightblue")
+```
+
+#Chceking the height distribution:
+
+```{r}
+dat_csv %>% 
+  ggplot(aes(x = height)) + geom_histogram(color = "black", fill = "pink")
+```
+
+#Chceking the weight distribution:
+
+```{r}
+dat_csv %>% 
+  ggplot(aes(x = weight)) + geom_histogram(color = "black", fill = "light yellow")
+```
+#Studying the comorbidities i.e., Diabetes, Hypertension, Diabetes&Hypertenion
+
+```{r}
+dat_csv %>%
+  drop_na() %>%
+  ggplot(
+    aes(
+      comorbidities
+    )
+  ) + geom_bar(width = 0.5, fill = "lightblue", position = "dodge") 
+```
+
+#Number of prior treatment for cirrhosis
+
+```{r}
+dat_csv %>%
+  drop_na() %>%
+  ggplot(
+    aes(
+      number_of_prior_treatments_for_cirrhosis
+    )
+  ) + geom_bar(width = 0.5, fill = "pink", position = "dodge") 
+```
+
+# Associations:
+
+#HCC and age
+
+```{r}
+new_data = dat_csv %>%
+  mutate(
+    age_cat = case_when(
+      age < 50 ~ 1,
+      age <= 75 ~ 2,
+      age > 75  ~ 3
+    )) 
+```
+
+
+```{r}
+age_dis = new_data %>%
+  select(
+    age_cat, hcc_at_5_years
+  ) %>%
+  group_by(
+    age_cat, hcc_at_5_years
+  ) %>%
+    dplyr::summarize(
+      n = n()
+      ) %>%
+dplyr::mutate(freq = n / sum(n)*100) 
+```
+
+```{r}
+age_dis %>%
+  ggplot(aes(x = age_cat, y = freq, fill = hcc_at_5_years)) + geom_bar(stat = "identity") + scale_x_discrete(name = "Age Category", limits = c("1","2","3")) + 
+  scale_y_continuous(name = "Percentage",
+                           breaks = seq(0, 100, 10),
+                           limits = c(0, 100)) + labs(x = "Age Category", y = "Percentage" , title = "Association between HCC and Age") + scale_fill_discrete(name = "HCC at 5 years", labels = c("NO", "YES")) 
+```
+
+# HCC and weight
+
+```{r}
+new_data %>%
+  mutate(
+    hcc_at_5_years = factor(hcc_at_5_years)
+  ) %>%
+  ggplot(
+    aes(
+      x = hcc_at_5_years, y = weight, fill = hcc_at_5_years
+    )
+  ) + geom_boxplot() + scale_fill_brewer(palette = "Blues") + theme_classic()
+```
+
+# HCC and height
+
+```{r}
+new_data %>%
+  mutate(
+    hcc_at_5_years = factor(hcc_at_5_years)
+  ) %>%
+  ggplot(
+    aes(
+      x = hcc_at_5_years, y = height, fill = hcc_at_5_years
+    )
+  ) + geom_boxplot() + scale_fill_brewer(palette ="RdBu") + theme_classic()
+```
+
+#HCC and alcohol
+
+```{r}
+hcc_alc = new_data %>% 
+  select(
+    hcc_at_5_years, alcohol, age_cat
+  ) %>%
+  drop_na() %>%
+  group_by(
+    hcc_at_5_years, age_cat
+  ) %>%
+  dplyr::summarise(
+    alc = mean(alcohol)
+  ) %>%
+  dplyr::mutate(
+    alc = round(alc, digits = 2)
+  )
+```
+```{r}
+ggplot(hcc_alc, aes(x = age_cat, y = alc)) +
+  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat="identity", width=.5) +
+      geom_text(aes(label = alc, group=hcc_at_5_years), position=position_dodge(width=0.5), vjust = -0.5) +
+      theme_bw(base_size = 18) 
+```
+
+#Hcc and comorbidities
+
+```{r}
+dat_csv %>%
+  select(
+    hcc_at_5_years, comorbidities
+  ) %>%
+  drop_na() %>%
+  group_by(
+    hcc_at_5_years, comorbidities
+  ) %>%
+  dplyr::summarise(
+    c = n()
+  ) %>%
+  ggplot(aes(x = comorbidities, y = c)) +
+  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat="identity", width=.5) +
+      geom_text(aes(label = c, group=hcc_at_5_years), position=position_dodge(width=0.5), vjust = -0.5) +
+      theme_bw(base_size = 18) 
+```
+
+#HCC and number of prior treatments for cirrhosis
+
+```{r}
+dat_csv %>%
+  select(
+    hcc_at_5_years, number_of_prior_treatments_for_cirrhosis
+  ) %>%
+  drop_na() %>%
+  group_by(
+    hcc_at_5_years, number_of_prior_treatments_for_cirrhosis
+  ) %>%
+  dplyr::summarise(
+    c = n()
+  ) %>%
+  ggplot(aes(x = number_of_prior_treatments_for_cirrhosis, y = c)) +
+  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat="identity", width=.5) +
+      geom_text(aes(label = c, group=hcc_at_5_years), position=position_dodge(width=0.5), vjust = -0.5) +
+      theme_bw(base_size = 18) 
+```
+
+
