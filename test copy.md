@@ -1,4 +1,4 @@
-Costello Medical exercise
+Practice 2
 ================
 Ekta Chaudhary
 28/06/2020
@@ -11,7 +11,7 @@ files = list.files(path = path, pattern = "*.csv", full.names = TRUE)
 \#Reading the datasets
 
 ``` r
-data_csv = ldply(files, read_csv) %>%
+dat_csv = ldply(files, read_csv) %>%
   janitor::clean_names()
 ```
 
@@ -149,7 +149,7 @@ data_csv = ldply(files, read_csv) %>%
     ## )
 
 ``` r
-data_csv 
+dat_csv 
 ```
 
     ##      x1 hcc_at_5_years  age  weight height alcohol
@@ -1211,150 +1211,130 @@ data_csv
     ## 527                                        0 Diabetes and hypertension
     ## 528                                        2 Diabetes and hypertension
 
-\#Created a new variable, BMI which is weight in kg/ (height in m)^2
-
-``` r
-data_csv = data_csv %>%
-  mutate(
-    age_cat = case_when(
-      age <= 50 ~ '<50',
-      age <= 65 ~ '51-65',
-      age > 65  ~ '65+'
-    ),
-    bmi = weight/(height/100)^2
-    ) 
-```
-
 \#Checking for missing values
 
 ``` r
-sapply(data_csv, function(x) sum(is.na(x))) %>%
-  knitr::kable()
+sapply(dat_csv, function(x) sum(is.na(x)))
 ```
 
-|                                               |  x |
-| --------------------------------------------- | -: |
-| x1                                            |  0 |
-| hcc\_at\_5\_years                             |  0 |
-| age                                           |  0 |
-| weight                                        |  0 |
-| height                                        |  8 |
-| alcohol                                       | 37 |
-| number\_of\_prior\_treatments\_for\_cirrhosis |  0 |
-| comorbidities                                 | 12 |
-| age\_cat                                      |  0 |
-| bmi                                           |  8 |
-
-\#Imputing the missing values for alcohol, height, bmi with the
-mean
-
-``` r
-data_csv$alcohol[is.na(data_csv$alcohol)] <- mean(data_csv$alcohol, na.rm = TRUE)
-data_csv$height[is.na(data_csv$height)] <- mean(data_csv$height, na.rm = TRUE)
-data_csv$bmi[is.na(data_csv$bmi)] <- mean(data_csv$bmi, na.rm = TRUE)
-```
+    ##                                       x1 
+    ##                                        0 
+    ##                           hcc_at_5_years 
+    ##                                        0 
+    ##                                      age 
+    ##                                        0 
+    ##                                   weight 
+    ##                                        0 
+    ##                                   height 
+    ##                                        8 
+    ##                                  alcohol 
+    ##                                       37 
+    ## number_of_prior_treatments_for_cirrhosis 
+    ##                                        0 
+    ##                            comorbidities 
+    ##                                       12
 
 \#Exploring the minimimum and maximum value for each variable
 
 ``` r
-data_csv %>%
-  summarise(
-    Min_Age = min(age),
-    Min_Weight = min(weight),
-    Min_Alcohol_intake = min(alcohol),
-    Min_Height = min(height),
-    Min_BMI = min(bmi)
-  ) %>%
-knitr::kable()
+data_new = dat_csv %>%
+  drop_na()
+sapply(data_new, function(x) min(x)) 
 ```
 
-| Min\_Age | Min\_Weight | Min\_Alcohol\_intake | Min\_Height | Min\_BMI |
-| -------: | ----------: | -------------------: | ----------: | -------: |
-|       26 |      43.033 |                    0 |      141.88 | 15.85059 |
+    ##                                       x1 
+    ##                                      "1" 
+    ##                           hcc_at_5_years 
+    ##                                      "N" 
+    ##                                      age 
+    ##                                     "26" 
+    ##                                   weight 
+    ##                                 "43.033" 
+    ##                                   height 
+    ##                                 "141.88" 
+    ##                                  alcohol 
+    ##                                      "0" 
+    ## number_of_prior_treatments_for_cirrhosis 
+    ##                                      "0" 
+    ##                            comorbidities 
+    ##                               "Diabetes"
 
 ``` r
-data_csv %>%
-  summarise(
-    Max_Age = max(age),
-    Max_Weight = max(weight),
-    Max_Alcohol_intake = max(alcohol),
-    Max_Height = max(height),
-    Max_BMI = max(bmi)
-  ) %>%
-knitr::kable()
+sapply(data_new, function(x) max(x))
 ```
 
-| Max\_Age | Max\_Weight | Max\_Alcohol\_intake | Max\_Height | Max\_BMI |
-| -------: | ----------: | -------------------: | ----------: | -------: |
-|     99.3 |     116.302 |                   30 |      184.73 |  38.5878 |
+    ##                                       x1 
+    ##                                    "102" 
+    ##                           hcc_at_5_years 
+    ##                                      "Y" 
+    ##                                      age 
+    ##                                   "99.3" 
+    ##                                   weight 
+    ##                                "116.302" 
+    ##                                   height 
+    ##                                 "184.73" 
+    ##                                  alcohol 
+    ##                                     "30" 
+    ## number_of_prior_treatments_for_cirrhosis 
+    ##                                      "3" 
+    ##                            comorbidities 
+    ##                           "Hypertension"
 
 \#Checking the mean values for each variable
 
 ``` r
-data_csv %>%
+dat_csv %>%
+  drop_na() %>%
   summarise(
-    Avg_Age = mean(age),
-    Avg_Weight = mean(weight),
+    Avg_age = mean(age),
+    Avg_weight = mean(weight),
     Avg_Alcohol_intake = mean(alcohol),
-    Avg_Height = mean(height),
-    Avg_BMI = mean(bmi)
+    Avg_Height = mean(height)
   ) %>%
 knitr::kable()
 ```
 
-| Avg\_Age | Avg\_Weight | Avg\_Alcohol\_intake | Avg\_Height | Avg\_BMI |
-| -------: | ----------: | -------------------: | ----------: | -------: |
-| 57.85568 |    74.93459 |             15.29939 |    162.7656 | 28.16391 |
+| Avg\_age | Avg\_weight | Avg\_Alcohol\_intake | Avg\_Height |
+| -------: | ----------: | -------------------: | ----------: |
+| 57.70543 |    74.79261 |             15.33612 |    162.8555 |
 
-\#Checking the age distribution:
+\#Chceking the age distribution:
 
 ``` r
-data_csv %>% 
+dat_csv %>% 
   ggplot(aes(x = age)) + geom_histogram(color = "black", fill = "lightblue")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-<img src="test_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-6-1.png" width="90%" />
 
 \#Chceking the height distribution:
 
 ``` r
-data_csv %>% 
+dat_csv %>% 
   ggplot(aes(x = height)) + geom_histogram(color = "black", fill = "pink")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-<img src="test_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
 
 \#Chceking the weight distribution:
 
 ``` r
-data_csv %>% 
-  ggplot(aes(x = weight)) + geom_histogram(color = "black", fill = "dark green")
+dat_csv %>% 
+  ggplot(aes(x = weight)) + geom_histogram(color = "black", fill = "light yellow")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-<img src="test_files/figure-gfm/unnamed-chunk-11-1.png" width="90%" />
-
-\#Checking the BMI distribution
-
-``` r
-data_csv %>% 
-  ggplot(aes(x = bmi)) + geom_histogram(color = "black", fill = "steel blue")
-```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-<img src="test_files/figure-gfm/unnamed-chunk-12-1.png" width="90%" />
-
+<img src="test_files/figure-gfm/unnamed-chunk-8-1.png" width="90%" />
 \#Studying the comorbidities i.e., Diabetes, Hypertension,
 Diabetes\&Hypertenion
 
 ``` r
-data_csv %>%
+dat_csv %>%
   drop_na() %>%
   ggplot(
     aes(
@@ -1363,12 +1343,12 @@ data_csv %>%
   ) + geom_bar(width = 0.4, fill = "steelblue", position = "dodge") + labs(x = "Comorbidities", y = "Number of patients" , title = "Number of patients with comorbidities") 
 ```
 
-<img src="test_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
 
 \#Number of prior treatment for cirrhosis
 
 ``` r
-data_csv %>%
+dat_csv %>%
   drop_na() %>%
   ggplot(
     aes(
@@ -1377,14 +1357,24 @@ data_csv %>%
   ) + geom_bar(width = 0.4, fill = "darkgreen", position = "dodge") + labs(x = "Prior treatments of cirrhosis", y = "Number of patients" , title = "Number of patients with prior treatments of cirrhosis") 
 ```
 
-<img src="test_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
 
 # Associations:
 
 \#HCC and age
 
 ``` r
-age_dis = data_csv %>%
+new_data = dat_csv %>%
+  mutate(
+    age_cat = case_when(
+      age < 50 ~ 1,
+      age <= 75 ~ 2,
+      age > 75  ~ 3
+    )) 
+```
+
+``` r
+age_dis = new_data %>%
   select(
     age_cat, hcc_at_5_years
   ) %>%
@@ -1398,50 +1388,51 @@ dplyr::mutate(freq = n / sum(n)*100)
 ```
 
 ``` r
-age_dis
-```
-
-    ## # A tibble: 6 x 4
-    ## # Groups:   age_cat [3]
-    ##   age_cat hcc_at_5_years     n  freq
-    ##   <chr>   <chr>          <int> <dbl>
-    ## 1 <50     N                 76  61.8
-    ## 2 <50     Y                 47  38.2
-    ## 3 51-65   N                149  57.8
-    ## 4 51-65   Y                109  42.2
-    ## 5 65+     N                 40  27.2
-    ## 6 65+     Y                107  72.8
-
-``` r
 age_dis %>%
-  ggplot(aes(x = age_cat, y = freq, fill = hcc_at_5_years)) + geom_bar(stat = "identity", width = 0.5) + scale_x_discrete(name = "Age Category", limits = c("<50","51-65","65+")) + 
+  ggplot(aes(x = age_cat, y = freq, fill = hcc_at_5_years)) + geom_bar(stat = "identity", width = 0.5) + scale_x_discrete(name = "Age Category", limits = c("1","2","3")) + 
   scale_y_continuous(name = "Percentage",
                            breaks = seq(0, 100, 10),
                            limits = c(0, 100)) + labs(x = "Age Category", y = "Percentage" , title = "Association between HCC and Age") + scale_fill_discrete(name = "HCC at 5 years", labels = c("NO", "YES")) 
 ```
 
-<img src="test_files/figure-gfm/unnamed-chunk-17-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
 
-\#HCC and BMI
+# HCC and weight
 
 ``` r
-data_csv %>%
+new_data %>%
   mutate(
     hcc_at_5_years = factor(hcc_at_5_years)
   ) %>%
   ggplot(
     aes(
-      x = hcc_at_5_years, y = bmi, color = hcc_at_5_years
+      x = hcc_at_5_years, y = weight, fill = hcc_at_5_years
     )
-  ) + geom_boxplot()  + labs(x = "HCC at 5 years", y = "Body Mass Index" , title = "Association between HCC and BMI") + scale_fill_discrete(name = "HCC at 5 years", labels = c("NO", "YES")) 
+  ) + geom_boxplot() + scale_fill_brewer(palette = "Blues") + theme_classic()
 ```
 
-<img src="test_files/figure-gfm/unnamed-chunk-18-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
+
+# HCC and height
+
+``` r
+new_data %>%
+  mutate(
+    hcc_at_5_years = factor(hcc_at_5_years)
+  ) %>%
+  ggplot(
+    aes(
+      x = hcc_at_5_years, y = height, fill = hcc_at_5_years
+    )
+  ) + geom_boxplot() + scale_fill_brewer(palette ="RdBu") + theme_classic()
+```
+
+<img src="test_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
 
 \#HCC and alcohol
 
 ``` r
-hcc_alc = data_csv %>% 
+hcc_alc = new_data %>% 
   select(
     hcc_at_5_years, alcohol, age_cat
   ) %>%
@@ -1460,42 +1451,36 @@ hcc_alc = data_csv %>%
 ``` r
 ggplot(hcc_alc, aes(x = factor(age_cat), y = alc)) +
   geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat = "identity", width = .5) +
-      geom_text(aes(label = alc, group = hcc_at_5_years), position = position_dodge(width = 0.5), vjust = -0.5) + labs(x = "Age Category", y = "Average alcohol intake", title = "Association between HCC and alcohol intake") + scale_fill_discrete(name = "HCC at 5 years", labels = c("NO", "YES")) 
+      geom_text(aes(label = alc, group = hcc_at_5_years), position = position_dodge(width = 0.5), vjust = -0.5) + labs(x = "Age Category", y = "Average alcohol intake", title = "Association between HCC and alcohol intake") 
 ```
 
-<img src="test_files/figure-gfm/unnamed-chunk-20-1.png" width="90%" />
-
-\#Below 50, alcohol consumption doesn’t effect the likelihood of
-developning HCC. As the age increases,higher alcohol consumption leads
-to an increased chances of developing HCC
+<img src="test_files/figure-gfm/unnamed-chunk-17-1.png" width="90%" />
 
 \#Hcc and comorbidities
 
 ``` r
-data_csv %>%
+dat_csv %>%
   select(
     hcc_at_5_years, comorbidities
   ) %>%
   drop_na() %>%
   group_by(
-    comorbidities,hcc_at_5_years
+    hcc_at_5_years, comorbidities
   ) %>%
-  dplyr::summarize(
-      n = n()
-      ) %>%
-dplyr::mutate(freq = n / sum(n)*100) %>%
-  mutate(
-    freq = round(freq, digits = 2)
+  dplyr::summarise(
+    c = n()
   ) %>%
-  ggplot(aes(x = comorbidities, y = freq, fill = hcc_at_5_years)) + geom_bar(stat = "identity", width = 0.5) +  labs(x = "Comorbidities", y = "Percentage of patients", title = "Association between HCC and Comorbidities") + theme(axis.text.x = element_text(angle = 90, vjust = 0.9, hjust = 0.9)) + scale_fill_discrete(name = "HCC at 5 years", labels = c("NO", "YES")) 
+  ggplot(aes(x = comorbidities, y = c)) +
+  geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat = "identity", width = .5) +
+      geom_text(aes(label = c, group = hcc_at_5_years), position = position_dodge(width = 0.5), vjust = -0.5) +  labs(x = "Comorbidities", y = "Number of patients", title = "Association between HCC and Comorbidities") + theme(axis.text.x = element_text(angle = 90, vjust = 0.9, hjust = 0.9))
 ```
 
-<img src="test_files/figure-gfm/unnamed-chunk-21-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-18-1.png" width="90%" />
 
 \#HCC and number of prior treatments for cirrhosis
 
 ``` r
-data_csv %>%
+dat_csv %>%
   select(
     hcc_at_5_years, number_of_prior_treatments_for_cirrhosis
   ) %>%
@@ -1509,39 +1494,7 @@ data_csv %>%
   ggplot(aes(x = number_of_prior_treatments_for_cirrhosis, y = c)) +
   geom_bar(aes(fill = hcc_at_5_years), position = "dodge", stat = "identity", width = .5) +
       geom_text(aes(label = c, group = hcc_at_5_years), position = position_dodge(width = 0.5), vjust = -0.5) +
-      labs(x = "Number of prior treatments for Cirrhosis", y = "Number of patients", title = "Association between HCC and number of prior treatments for Cirrhosis") + scale_fill_discrete(name = "HCC at 5 years", labels = c("NO", "YES")) 
+      labs(x = "Number of prior treatments for Cirrhosis", y = "Number of patients", title = "Association between HCC and number of prior treatments for Cirrhosis") 
 ```
 
-<img src="test_files/figure-gfm/unnamed-chunk-22-1.png" width="90%" />
-
-``` r
-data_csv$alcohol_dec <- decile(vector = data_csv$alcohol, decreasing = TRUE)
-```
-
-``` r
-alc_dec = data_csv %>% 
-  select(
-    alcohol,alcohol_dec
-  ) %>%
-  drop_na() %>%
-  group_by(
-    alcohol_dec
-  ) %>%
-  dplyr::summarise(
-    alc = mean(alcohol)
-  ) %>%
-  dplyr::mutate(
-    alc = round(alc, digits = 2)
-  )
-```
-
-``` r
-alc_dec %>%
-  drop_na() %>%
-  ggplot(
-    aes(x = factor(alcohol_dec), y = alc)
-  ) + geom_bar(width = 0.4, fill = "steelblue", position = "dodge", stat = "identity") +
-  geom_text(aes(label = alc), vjust = -0.3, size = 3.5) + labs(x = "Deciles", y = "Average alcohol consumption units" , title = "Average alcohol consumption by each Decile" )
-```
-
-<img src="test_files/figure-gfm/unnamed-chunk-25-1.png" width="90%" />
+<img src="test_files/figure-gfm/unnamed-chunk-19-1.png" width="90%" />
